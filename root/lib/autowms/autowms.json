@@ -1,0 +1,24 @@
+{
+  "sistem": {
+    "status": {
+      "running": "x",
+      "register": "x"
+    },
+    "family": {
+      "keypatch": "x",
+      "routerid": "x"
+    }
+  },
+  "akun": {
+    "perAkun": {
+      "enabled": "x",
+      "cron": "x",
+      "note": "x",
+      "user": "x",
+      "pass": "x",
+      "gwid": "x",
+      "wlid": "x",
+      "wlid1": "x"
+    }
+  }
+}

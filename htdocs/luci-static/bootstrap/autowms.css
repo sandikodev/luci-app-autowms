@@ -1,0 +1,36 @@
+.autowms-status-table{
+	min-width: 280px;
+	max-width: 500px;
+	margin: auto;
+	width: 50%;
+}
+
+.autowms-info{
+	min-width: 400px;
+	max-width: 570px;
+	width: 100%;
+}
+
+.awmsEnab{
+	margin-top: 30%;
+	min-height: 10em;
+}
+.awmsRunn{
+
+}
+#awmsBuymeInfo {
+	min-width: 280px;
+	max-width: 500px;
+	height: 0px;
+	font-weight: bold;
+	text-align: center;
+	overflow-y: hidden;
+}
+.wmsbtn{
+	min-width: 115px;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+}
+.awmsControl{
+}
+

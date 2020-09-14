@@ -1,0 +1,24 @@
+
+config sistem 'status'
+	option running '1'
+	option keypatch 'ewd'
+	option routerid 'ed'
+	option register '1'
+
+config akun 'premium_wed'
+	option note 'wed'
+	option linkwms 'edewdewd'
+	option user 'ewdwed'
+	option cron '6'
+	option pass 'ewdewd'
+	option ceklink '1'
+
+config akun 'regular_ewdew'
+	option note 'ewdew'
+	option wlid 'ewd'
+	option gwid 'dedew'
+	option user 'ewde'
+	option cron '6'
+	option pass 'ewde'
+	option wlid1 'ewd'
+

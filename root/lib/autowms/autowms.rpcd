@@ -1,0 +1,192 @@
+#!/bin/sh
+
+. /lib/functions.sh                                                            
+. /usr/share/libubox/jshn.sh
+
+alist_akun(){
+	json_add_object "Table.akun"
+		json_add_int		"cron"		"String"
+		json_add_string		"note"		"String"
+		json_add_string		"user"		"String"
+		json_add_string		"pass"		"String"
+		json_add_string 	"gwid"		"String"
+		json_add_string 	"wlid"		"String"
+		json_add_string 	"wlid1"		"String"
+	json_close_object
+}
+
+
+alist_sistem(){
+	json_add_object "getSistem.status"
+		json_add_boolean	"running"	"Boolean"
+		json_add_boolean	"register"	"Boolean"
+		json_add_boolean	"enabled"	"Boolean"
+		json_add_string		"aktif"		"String"
+	json_close_object
+	json_add_object "getSistem.family"
+		json_add_string		"keypatch"	"String"
+		json_add_string		"routerid"	"String"
+	json_close_object
+}
+
+
+get_autowms_sistem(){
+	#config_load autowms
+	local configType=$1
+	local customType=$2
+	
+	config_get running $configType running
+	config_get register $configType register
+	config_get enabled $configType enabled
+	config_get aktif $configType aktif
+	config_get routerid $configType routerid
+	config_get keypatch $configType keypatch
+	#add more, as might do you need
+	status(){
+		json_add_object $configType
+			json_add_boolean	"running"	$running
+			json_add_string		"register"	$register
+			json_add_boolean	"enabled"	$enabled
+			json_add_string		"aktif"		$aktif
+		json_close_object
+	}
+	family(){
+		json_add_object "family"
+			json_add_string		"keypatch"	$keypatch
+			json_add_string		"routerid"	$routerid
+		json_close_object
+	}
+
+
+	case $2 in
+		status)	status;;
+		family)	family;;
+		both)	status&&family;;
+	esac
+}
+
+get_autowms_akun(){
+	#config_load autowms
+	local configType=$1
+	local customType=$2
+	config_get note $configType note
+	config_get cron $configType cron
+	config_get user $configType user
+	config_get pass $configType pass
+	config_get gwid $configType gwid
+	config_get wlid $configType wlid
+	config_get wlid1 $configType wlid1
+
+	json_add_object $configType
+		json_add_string         "cron"          $cron
+		json_add_string		"note"		$note		
+		json_add_string		"user"		$user		
+		json_add_string		"pass"		$pass		
+		json_add_string 	"gwid"		$gwid		
+		json_add_string 	"wlid"		$wlid		
+		json_add_string 	"wlid1"		$wlid1		
+	json_close_object
+}
+
+writeAWMS_sistem(){
+	writeMe(){
+			config_foreach get_autowms_sistem sistem $1
+	}
+	case $1 in
+		status)	writeMe status;;
+		family)	writeMe family;;
+		*)
+			json_add_object sistem
+				writeMe both
+			json_close_object;;
+
+	esac
+}
+
+writeAWMS_akun(){
+	json_add_object akun
+		config_foreach get_autowms_akun akun
+	json_close_object
+}
+
+listed_subKey(){
+	eval `ubus call autowms.$1 get$(echo $1 | awk -vFS="" -vOFS="" '{$1=toupper($1);print $0}') | jsonfilter -e "__subKeys=@.$1.$2"`
+}
+
+listed_section(){
+	eval `ubus call autowms.$1 get$(echo $1 | awk -vFS="" -vOFS="" '{$1=toupper($1);print $0}') | jsonfilter -e "__Keys=@.$1"`
+}
+
+runMe(){
+	for key in $TypeKeys; do
+		listed_subKey $1 $key	#fetch the ori to __subKeys var
+
+		json_select $key
+		json_get_keys subKeys
+		case $2 in
+			toSub)
+				for subKey in $subKeys; do
+					case $3 in
+						valid_subKey)	echo $__subKeys | xargs -n1 echo | grep -e "^$subKey$";;
+						req_subKey)	echo $subKey;;
+						getPatch)
+							local valSubKey
+							json_get_var valSubKey $subKey
+
+							if [ $1 == "sistem" ]; then
+								uci set autowms.status.$subKey=$valSubKey
+							elif [ $1 == "akun" ]; then
+								uci set autowms.$key.$subKey=$valSubKey
+							fi;;
+					esac
+				done;;
+			valid_Key)	echo $__Keys | xargs -n1 echo | grep -e "^$key$";;
+		esac
+		json_select
+	done
+}
+
+writeAkun_section(){
+	local sec='akun'
+	listed_section $sec
+	json_init
+	json_load $1
+	json_get_keys TypeKeys
+	if [ -z "$__Keys" ]; then
+		echo -n '{"response":"create akun first!"}'
+	else
+		if [ `echo $TypeKeys | wc -w` -ne `runMe $sec valid_Key | wc -w` ];then
+			echo -n '{"response":"there uncreated user"}'
+
+		elif [ `runMe $sec toSub req_subKey | wc -w` -ne `runMe $sec toSub valid_subKey | wc -w` ];then
+			echo -n '{"response":"there unsupported option"}'
+
+		else
+			runMe $sec toSub getPatch
+			echo -n '{"response":"patch success"}'
+		fi
+	fi
+}
+
+writeSys_section(){
+	local sec='sistem'
+	listed_section $sec
+	json_init
+	json_load $1
+	json_get_keys TypeKeys
+	if [ -z "$__Keys" ]; then
+		echo -n '{"response":"no keys, resolve your configuration!"}'
+	else
+		if [ `echo $TypeKeys | wc -w` -ne `runMe $sec valid_Key | wc -w` ];then
+			echo -n '{"response":"wrong keys/config unresolved"}'
+
+		elif [ `runMe $sec toSub req_subKey | wc -w` -ne `runMe $sec toSub valid_subKey | wc -w` ];then
+			echo -n '{"response":"there unsupported option"}'
+
+		else
+			runMe $sec toSub getPatch
+			echo -n '{"response":"patch success"}'
+
+		fi
+	fi
+}

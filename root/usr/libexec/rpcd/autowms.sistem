@@ -1,0 +1,64 @@
+#!/bin/sh
+. /lib/autowms/autowms.rpcd
+
+main () {
+	case "$1" in
+		list)
+			json_init
+			json_add_object "getSistem"
+				alist_sistem
+			json_close_object
+			alist_sistem
+			json_add_object "setSistem"
+				json_add_object "status"
+					json_add_string "register" "Boolean"
+					json_add_string "enabled" "x"
+					json_add_string "aktif" "x"
+				json_close_object
+				json_add_object "family"
+					json_add_string "keypatch" "x"
+					json_add_string "routerid" "x"
+				json_close_object
+			json_close_object
+			json_dump
+			;;
+		call)
+			read input;
+			if [ -z $2 ]; then
+				echo -n '{"response":"declare your method first!"}'
+			else
+				case "$2" in
+					getSistem)
+						config_load autowms
+						json_init
+						writeAWMS_sistem
+						json_dump
+						;;
+					getSistem.status)
+						config_load autowms
+						json_init
+						writeAWMS_sistem status
+						json_dump
+						;;
+					getSistem.family)
+						config_load autowms
+						json_init
+						writeAWMS_sistem family
+						json_dump
+						;;
+					setSistem)
+						if [ -z $input ]; then
+							echo -n '{"response":"declare right request first!"}'
+						elif [ $input == '{}' ]; then
+							echo -n '{"response":"get right request declaration!"}'
+						else
+							writeSys_section $input
+						fi;;
+					*)	echo -n '{"response":"so sorry, your method just not listed"}';;
+				esac
+			fi;;
+		*)echo -n '{"response":"declare "runAs" type first"}';;
+	esac
+}
+
+main "$@"

@@ -1,0 +1,64 @@
+<%#
+ Copyright 2020 <androxoss@hotmail.com>
+-%>
+<%+header%>
+<style>
+	.autowms-status-table{
+		margin: auto;
+		width: 50%;
+	}
+	.autowms-info{
+		width: 100%;
+	}
+	.awmsEnab{
+		margin-top: 30%;
+		min-height: 10em;
+	}
+	.awmsRunn{
+	}
+</style>
+
+<script type="text/javascript">
+//<![CDATA[
+
+/*
+function tableInfo(){
+	awmsEnabView +=String.format(  '<div class="tr">
+					<div class="td center" >Catatan</div>
+					<div class="td center" id="awms_note"></div>
+					</div>', );
+}
+*/
+
+const msgIN = "mohon aktifkan user";
+const msgNU = "No User has been created"; 
+const msgMU = "Have exceeded active users";
+const msgER = "service bermasalah; Hubungi Pengembang";
+
+XHR.poll(100, '<%=
+luci.dispatcher.build_url("admin", "autowms","informasi")%>', null, function(x, apiAutowms){
+	console.log("coba");
+});
+
+//]]>
+</script>
+
+<div class="autowms-status-table">
+	<div class="ifacebox autowms-info" id="autowms-info">
+		<div class="ifacebox-head center active"><strong>INFO /registered</strong></div>
+		<div class="ifacebox-body autowms-info" id="awms_enab">
+			<div class="table">
+				<div class="tr"><div class="td center" >Catatan</div><div class="td center" id="awms_note"></div></div>
+				<div class="tr"><div class="td center" >Restart/Cron</div><div class="td center" id="awms_cron"></div></div>
+				<div class="tr"><div class="td center" >Username</div><div class="td center" id="awms_user"></div></div>
+				<div class="tr"><div class="td center" >Password</div><div class="td center" id="awms_pass"></div></div>
+				<div class="tr"><div class="td center" >Gateway ID</div><div class="td center" id="awms_gwid"></div></div>
+				<div class="tr"><div class="td center" >WirelessID</div><div class="td center" id="awms_wlid"></div></div>
+				<div class="tr"><div class="td center" >WirelessID-1</div><div class="td center" id="awms_wlid1"></div></div>
+			</div>
+		</div>
+		<div class="autowms-info" id="awms_runn"></div>
+	</div>
+</div>
+
+<%+footer%>

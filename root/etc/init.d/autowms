@@ -1,0 +1,56 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=40
+RUNWMS="/var/run/autowms"
+CONFILE="/etc/config/autowms"
+PIDFILE1="$RUNWMS/autowms_init.pid"
+PIDFILE2="$RUNWMS/autowms_loop.pid"
+LOGFILE="$RUNWMS/autowms.log"
+SERVICE_="/usr/sbin/autowms"
+
+boot(){
+	[ ! -d $RUNWMS ] && mkdir $RUNWMS
+	sleep 2
+	$SERVICE_ resolv
+	sleep 6
+	echo "====================[ 1st boot log ]================" >> $LOGFILE
+	rc_procd start_service
+}
+
+start_service(){
+	procd_open_instance
+        procd_set_param command /bin/sh $SERVICE_ start
+        procd_set_param file    $CONFILE
+        procd_set_param pidfile $PIDFILE1
+        procd_set_param stdout 1
+        procd_set_param stderr 1
+	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+        procd_close_instance
+	
+	procd_open_instance
+        procd_set_param command /bin/sh $SERVICE_ isRunning
+        procd_set_param file    $CONFILE
+        procd_set_param pidfile $PIDFILE2
+        procd_set_param stdout 1
+        procd_close_instance
+}
+stop_service() {
+	echo trying to forcekill >> $LOGFILE
+	#ps | grep "/bin/sh /usr/sbin/autowms" && kill -9 `pidof sh`
+	#$SERVICE_ stop
+	#sleep 3
+	#kill -9 `pidof sh`
+	echo "Success ----=================================100%===" >> $LOGFILE
+}
+reload_service()
+{
+        echo "Explicitly restart Services [*]" >> $LOGFILE
+        stop
+        start
+	echo "Success ----=================================100%===" >> $LOGFILE
+}
+
+service_triggers() {
+	procd_add_reload_trigger 'autowms'
+}

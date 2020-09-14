@@ -1,0 +1,8 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+mkdir /var/run/autowms
+if [ ! -f /etc/config/autowms ];then
+	touch /etc/config/autowms
+fi
+touch /var/run/autowms.log
+exit 0

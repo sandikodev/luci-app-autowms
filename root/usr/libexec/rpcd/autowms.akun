@@ -1,0 +1,52 @@
+#!/bin/sh
+. /lib/autowms/autowms.rpcd
+main () {
+	case "$1" in
+		list)
+			config_load autowms
+			json_init
+			json_add_object "getAkun"
+				config_foreach get_autowms_akun akun
+			json_close_object
+			json_add_object "setAkun"
+				config_foreach get_autowms_akun akun
+			json_close_object
+			alist_akun
+			json_dump
+			;;
+		call)
+			read input;
+			if [ -z $2 ]; then
+				echo -n '{"response":"declare your method first!"}'
+			elif [ `echo $2 | grep -c "Table"` -ne 0 ]; then
+				echo -n '{"response":"check me with `ubus -v list autowms.akun`"}'
+			else
+				case "$2" in
+					getAkun)
+						case $input in
+							*)
+								config_load autowms
+								json_init
+								writeAWMS_akun
+								json_dump
+								;;
+						esac;;
+					setAkun)
+						#json_add_string "buh" `echo $input | awk -vFS=":" '{ print $2 }'`
+						if [ -z $input ]; then
+							echo -n '{"response":"declare right request first!"}'
+						elif [ $input == '{}' ]; then
+							echo -n '{"response":"get right request declaration!"}'
+						else
+							case $input in
+								*)	writeAkun_section $input;;
+							esac
+						fi;;
+					*)	echo -n '{"response":"so sorry, your method just not listed"}';;
+				esac
+			fi;;
+		*)echo -n '{"response":"declare "runAs" type first"}';;
+	esac
+}
+
+main "$@"

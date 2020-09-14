@@ -1,0 +1,73 @@
+<%#
+ Copyright 2020 sandiko <androxoss@hotmail.com>
+ Licensed to the public under the GNU General Public License v2.
+-%>
+
+<script type="text/javascript">//<![CDATA[
+
+function secondsToString(time) {
+	var seconds = parseInt(time, 10);
+
+	var hrs   = Math.floor(seconds / 3600);
+	seconds  -= hrs*3600;
+	var mnts = Math.floor(seconds / 60);
+	seconds  -= mnts*60;
+	return String.format("%sh:%sm:%ss", hrs, mnts, seconds);
+}
+
+XHR.poll(-1, '<%=luci.dispatcher.build_url("admin", "autowms", "informasi")%>', null,
+function(x, status){
+	var statusDiv = document.getElementById('autowms_statusbox');
+	if (status.akun){
+		var statusview = '';
+		for ( var note in status.akun){
+			var state = '';
+			var css = '';
+			var time = '';
+			switch (status.akun[note].running)
+				case 'true':
+					state = '<%:Active%>';
+					wlid = String.format('<div><strong>WLID: </strong>%s</div>',
+								status.akun[note].wlid);
+					css = 'success';
+					break;
+				case 'false':
+					state = '<%:Inactive%>';
+					wlid = String.format('<div><strong>WLID: </strong>%s</div>',
+								status.akun[note].wlid);
+					css = 'danger';
+					break;
+				default:
+					state = '<%:Buat Sambungan!%>';
+					css = 'warning';
+					break;		
+		}
+		statusview += String.format('<div class="alert-message %s">', css);
+		statusview += String.format('<div><strong>Interface: </strong>%s</div>', note);
+		if (time){ statusview += time; }
+		statusview += '</div>'
+	}
+	statusDiv.innerHTML = statusview;
+	else { statusDiv.innerHTML = '<strong><%: Buat Akun Terlebih Dahulu!!%></strong>'; }
+
+});
+//]]></script>
+
+<style type="text/css">
+	#autowms_statusbox > div {
+		display: inline-block;
+		margin: 1rem;
+		padding: 1rem;
+		width: 10rem;
+		float: left;
+		line-height: 125%;
+	}
+</style>
+
+<fieldset id="interface_field" class="cbi-section">
+	<legend><%:INFO / Registered%></legend>
+	<div id="autowms_statusbox">
+		<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" />
+		<%:Collecting data...%>
+	</div>
+</fieldset>

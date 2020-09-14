@@ -1,0 +1,30 @@
+{
+	"luci-app-autowms": {
+		"description": "grant uci access for luci-app-autowms",
+		"read": {
+			"file": {
+				"/usr/sbin/autowms": [ "exec" ],
+				"/var/run/autowms/autowms*.log": [ "read" ]
+			},
+			"uci": [ "autowms" ],
+			"ubus": {
+				"autowms.sistem": [ "getSistem" , "getSistem.status", "getSistem.family" ],
+				"autowms.akun": [ "getAkun" ]
+			}
+		},
+		"write": {
+			"file": {
+				"/bin/touch": [ "exec" ],
+				"/etc/init.d/autowms": [ "exec" ],
+				"/usr/sbin/autowms" : [ "exec" ],
+				"/var/run/autowms/autowms.log": [ "write" ]
+			},
+			"uci": [ "autowms" ],
+			"ubus": {
+				"autowms.sistem" : [ "setSistem" ],
+				"autowms.akun" : [ "setAkun" ]
+			}
+
+		}
+	}
+}

@@ -1,0 +1,99 @@
+#!/bin/sh
+. /lib/autowms/autowms.sh
+
+#with verbose or not
+#comment this for disable verbose
+exec 3>&1 1>>${AUTOWMS_SLOG} 2>&1
+
+help(){
+cat <<EOF
+
+AUTOWMS CONTROL PANEL [command]
+*disarankan,jalankan saya dengan /etc/init.d/autowms
+	sandiko	<androxoss@hotmail.com>
+	mh4nx7net kopikonfig.com
+
+Available commands:
+	start           Start Service
+	stop            Stop and clean Service
+	restart         Reload, Reclean Service
+	status          Show all Status
+	koneksi		Cek koneksi bos
+	resolv		Memperbaiki yang bermasalah
+	clean		clear log /var/run/autowms
+	isPIDRUN	check running of pid
+
+EOF
+}
+
+clean(){
+	echo > /var/run/autowms/autowms.log
+}
+resolv(){
+	resolv_all
+}
+
+koneksi(){
+	cek_koneksi 1>&3
+}
+
+status(){
+	resolv_depend
+	get_info 1>&3
+}
+isPIDRUN(){
+	if [[ -f /var/run/autowms/autowms_init.pid || -f /var/run/autowms/autowms_loop.pid ]];then
+		echo -n "true" 1>&3
+	else
+		echo -n "false" 1>&3
+	fi
+}
+isRunning(){
+	echo "================================[ autoupdate-runner]"
+	while [ 1 ]; do
+		update_runner
+		echo "1.1.1.1 success"
+		sleep 10
+	done
+}
+
+start(){
+	[[ -z "$TIMELOAD" ]] &&	TIMELOAD=$((60*15))
+	echo 
+	echo "PID: $(cat $PIDFILE)"
+	echo "Success, Service started [*]"
+	while [ 1 ]; do
+		autowms_connect
+		echo
+		echo $(date)
+		echo "reload/"$TIMELOAD"sekon"
+		sleep $TIMELOAD
+	done
+}
+stop(){
+<<'####'
+	if [[ -f "$PIDFILE" || ! -z "$(pidof sh)" && "$(pidof sh | wc -w)" -le 2 ]]; then
+		ps | grep "/bin/sh /usr/sbin/autowms" && kill -9 `pidof sh`
+		echo
+		echo "Explicitly stop Services [*]"
+        else
+		return 0
+	fi
+####
+}
+
+case "$1" in
+	status|start|stop|restart|koneksi|resolv|clean|isPIDRUN)
+		#echo init_apapun
+		$*
+	;;
+	isRunning)
+		isRunning
+	;;
+	*)
+
+		help 1>&3
+	;;
+esac
+
+exit 0
