@@ -19,6 +19,7 @@ var develAlert = function(msg="tambahkan pesan disini",head="C A U T I O N",head
 			E('a',{href:'https://github.com/mh4nx7net/luci-app-autowms'},[
 				E('button',{class:'cbi-button cbi-button-edit'},["SELENGKAPNYA"])
 			]),E('br')
+
 		])
 	]);
 };
@@ -56,51 +57,97 @@ var akunAutoTry = E('div',{class:'autowms-status-table'},[
 
 var keyshareInfo = form.DummyValue.extend({
 	renderWidget: function(){
-		/*
-		if(this.LoadData[0].akun.length != 0){
-			var domEnd = E('div');
+		if(Object.values(this.LoadData[1].sistem.status.register).length !== 0 && Object.values(this.LoadData[1].sistem.family.keypatch).length !== 0 && Object.values(this.LoadData[1].sistem.family.routerid).length !== 0){
+			if(Object.keys(this.LoadData[0].akun).length != 0){
+				function showData(data, key){
+					var node = E('div', { 'id': '%s-akun-status'.format(key) });
+					var servData = [
+						_('Cron'), data[key].cron != '' ? uci.get('autowms', key, 'cron') : "Mohon untuk dilengkapi!",
+						_('Username'), data[key].user != '' ? uci.get('autowms', key, 'user') :"Mohon untuk dilengkapi!",
+						_('Password'), data[key].pass != '' ? uci.get('autowms', key, 'pass') : "Mohon untuk dilengkapi!"
+					];
 
-			var coba = function(data){
-				for(i=0; i =< this.LoadData[0].akun.length; i++){
+					if(/^(regular)/.test(key)){
+						servData.push(
+							_('Gateway ID'), data[key].gwid != '' ? uci.get('autowms', key, 'gwid') : "Mohon untuk dilengkapi!",
+							_('Wireless ID'), data[key].wlid != '' ? uci.get('autowms', key, 'wlid') : "Mohon untuk dilengkapi!",
+							_('Wireless1 ID'), data[key].wlid1 != '' ? uci.get('autowms', key, 'wlid1') : "Mohon untuk dilengkapi!"
+						);
+					}
+					else if(/^(premium)/.test(key)){
+						servData.push(
+							_('LinkWMS'), data[key].linkwms != '' ? String(uci.get('autowms', key, 'linkwms')).substr(null,28) : "Mohon untuk dilengkapi!"
+						);
+					}
+					return L.itemlist(node,servData);
 				}
-			};
+				var renderKeyshareDynamic = [];
+				Object.keys(this.LoadData[0].akun).forEach((key, index) => {
+					renderKeyshareDynamic.push(E('div',{class:'tr cbi-section-table-row'},[
+						E('div',{class:'td center cbi-value-field'},[
+							E('div',{class:'ifacebox'},[
+								E('div',{class:'ifacebox-head', style: 'background-color:%s; color: white'.format(/^(regular)/.test(key) ? '#0069d6' : '#ff0032')},[key]),
+								E('div',{class:'ifacebox-body', style: 'background-color:%s; color: white'.format(key == this.LoadData[1].sistem.status.aktif ? /^(regular)/.test(key) ? '#78b5ff' : '#ff3333' : '#ffffff')},[
+									E('img', {
+										'src': L.resource('icons/tunnel%s.png'.format(key == this.LoadData[1].sistem.status.aktif ? '':'_disabled' )),
+										'style': 'width:16px; height:16px'
+									}), E('br'),
+									E('small', '%s'.format(key == this.LoadData[1].sistem.status.aktif ? 'Enabled':''))
 
-			domEnd.appendChild(develAlert('gunakan dengan bijak!','P E R H A T I A N ! !','ifacebox-head active','akun ilegal tidak diperkenankan'));
-			return domEnd;
+								])
+							])
+						]),
+						E('div',{class:'td center cbi-value-field'},[
+							showData(this.LoadData[0].akun, key)
+						])
+					]));
+				});
+				var domEnd = E('div');
+				var renderKeyshareHead = E('div',{class:'tr cbi-section-table-titles'},[
+					E('button',{class:'th'},["REFRESH"]),
+					E('button',{class:'th'},["URUTKAN"])
+				]);
+				renderKeyshareDynamic.unshift(renderKeyshareHead);
+				var domCBI_table = E('div',{
+					class:'cbi-section cbi-tblsection'
+				},[
+					E('div',{
+						class:'table cbi-section-table'
+					},renderKeyshareDynamic
+					)
+				]);
+
+				//this.LoadData[0].akun
+				/*
+				.forEach((key, index) => {
+					console.log(index);
+					console.log(`${key}: ${this.LoadData[0].akun[key]}`);
+				});*/
+
+
+				domEnd.appendChild(develAlert('gunakan dengan bijak!','P E R H A T I A N ! !','ifacebox-head active','akun ilegal tidak diperkenankan'));
+				domEnd.appendChild(E('br'));
+				domEnd.appendChild(domCBI_table);
+				return domEnd;
+
+			}
+			else if(Object.keys(this.LoadData[0].akun).length == 0){
+				var domCustom = develAlert("NO DATA WERE FOUND","IKAN HIU MAKAN TOMAT!!","ifacebox-head alert",'refresh atau hubungi kopikonfig.com');
+				domCustom.firstChild.append(E('a',{href:'https://www.facebook.com/kopikonfig'},[
+					E('button',{class:'cbi-button cbi-button-edit'},["TERIMAKASIH SUDAH NEGGUNAKAN LAYANAN PREMIUM"])
+				]),E('br'));
+				return domCustom;
+
+			}
+
 
 		}
-		else{
-			return develAlert("Berdonasi untuk turut aktif dalam Kontribusi?","BERSAMA DAPATKAN LAYANAN PREMIUM!!","ifacebox-head active",'buka tab "Tentang" atau hubungi "Kopikonfig.com');
-		}
-		*/
-		var mapKeyshare, secKeyshare, optKeyshare;
-		mapKeyshare = new form.Map('autowms');
-		secKeyshare = mapKeyshare.section(form.TypedSection, 'sistem',null);
-		secKeyshare.tab('akun',_('Akun'));
-		secKeyshare.taboption('akun', awmsRegister,'_coba_');
-
-		secKeyshare = mapKeyshare.section(form.GridSection, 'akun');
-		secKeyshare.addremove = false;
-		optKeyshare = secKeyshare.option(form.DummyValue, '_akunstat');
-		optKeyshare.modalonly = false;
-		optKeyshare.textvalue = function(section_id) {
-			var node = E('div', { 'id': '%s-akun-status'.format(section_id) });
-			function cobagan(node){
-				return L.itemlist(node, [
-					_('Username'),      true ? uci.get('autowms', section_id, 'user') :"kosong",
-					_('Password'),    true ? uci.get('autowms', section_id, 'pass') : "kosong",
-					_('Gateway ID'), true ? uci.get('autowms', section_id, 'gwid') : "kosong",
-					_('Wireless ID'),       true ? uci.get('autowms', section_id, 'wlid') : "kosong",
-					_('Wireless1 ID'),       true ? uci.get('autowms', section_id, 'wlid1') : "kosong",
-					_('Cron'),       true ? uci.get('autowms', section_id, 'cron') : "kosong",
-					_('LinkWMS'),       true ? String(uci.get('autowms', section_id, 'linkwms')).substr(null,28) : "kosong"
-				])
-			};
-			cobagan(node);
-			return node;
-		};
-		if(true){
-			return E('div',["coba"]),mapKeyshare.render();
+		else if(Object.values(this.LoadData[1].sistem.family.keypatch).length === 0 || Object.values(this.LoadData[1].sistem.family.routerid).length === 0){
+			var domCustom = develAlert("Berdonasi untuk turut andil dalam Kontribusi?","BERSAMA DAPATKAN LAYANAN PREMIUM!!","ifacebox-head active",'buka tab "Tentang" atau hubungi "Kopikonfig.com')
+			domCustom.firstChild.append(E('a',{href:'https://www.facebook.com/kopikonfig'},[
+				E('button',{class:'cbi-button cbi-button-remove'},["PASTIKAN LAYANAN PREMIUM DALAM KEADAAN AKTIF"])
+			]),E('br'));
+			return domCustom;
 		}
 	}
 });
@@ -235,37 +282,46 @@ function resolvData(LoadData, isAkunAlready){
 }
 
 function statusTable(dataAkun){
+	console.log(dataAkun);
+	function fetchData(dataAkun, whatAktif){
+		var servData = [
+			E('div',{class:'tr'},[
+				E('div',{class:'td center'},["Catatan"]),
+				E('div',{class:'td',id:'awms_note'},[dataAkun[whatAktif].note]),
+			]),
+			E('div',{class:'tr'},[
+				E('div',{class:'td center'},["Restart/Cron"]),
+				E('div',{class:'td',id:'awms_cron'},[dataAkun[whatAktif].cron]),
+			]),
+			E('div',{class:'tr'},[
+				E('div',{class:'td center'},["Username"]),
+				E('div',{class:'td',id:'awms_user'},[dataAkun[whatAktif].user]),
+			]),
+			E('div',{class:'tr'},[
+				E('div',{class:'td center'},["Password"]),
+				E('div',{class:'td',id:'awms_pass'},[dataAkun[whatAktif].pass]),
+			])
+		]
+		if(/^(regular)/.test(whatAktif)){
+			servData.push(
+				E('div',{class:'tr'},[
+					E('div',{class:'td center'},["Gateway ID"]),
+					E('div',{class:'td',id:'awms_gwid'},[dataAkun[whatAktif].gwid]),
+				]),
+				E('div',{class:'tr'},[
+					E('div',{class:'td center'},["Wireless ID"]),
+					E('div',{class:'td',id:'awms_wlid'},[dataAkun[whatAktif].wlid]),
+				]),
+				E('div',{class:'tr'},[
+					E('div',{class:'td center'},["Wireless ID-1"]),
+					E('div',{class:'td',id:'awms_wlid1'},[dataAkun[whatAktif].wlid1]),
+				])
+			);
+		}
+		return servData;
+	}
 	var whatAktif = uci.get('autowms','status','aktif');
-	var renderMe = whatAktif != null ? E('div',{class:'table'},[
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Catatan"]),
-			E('div',{class:'td',id:'awms_note'},[dataAkun[whatAktif].note]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Restart/Cron"]),
-			E('div',{class:'td',id:'awms_cron'},[dataAkun[whatAktif].cron]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Username"]),
-			E('div',{class:'td',id:'awms_user'},[dataAkun[whatAktif].user]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Password"]),
-			E('div',{class:'td',id:'awms_pass'},[dataAkun[whatAktif].pass]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Gateway ID"]),
-			E('div',{class:'td',id:'awms_gwid'},[dataAkun[whatAktif].gwid]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Wireless ID"]),
-			E('div',{class:'td',id:'awms_wlid'},[dataAkun[whatAktif].wlid]),
-		]),
-		E('div',{class:'tr'},[
-			E('div',{class:'td center'},["Wireless ID-1"]),
-			E('div',{class:'td',id:'awms_wlid1'},[dataAkun[whatAktif].wlid1]),
-		])
-		]) : E([],[
+	var renderMe = whatAktif != null ? E('div',{class:'table'}, fetchData(dataAkun, whatAktif)) : E([],[
 			E('div',{id:'awms_buyme'},[
 				E('img', {
 					'src': L.resource('icons/awms-kk1.png'),
@@ -279,7 +335,10 @@ function statusTable(dataAkun){
 	return E([],[
 		E('div',{class:'autowms-status-table'},[
 			E('div',{class:'ifacebox autowms-info',id:'autowms-info'},[
-				E('div',{class:'ifacebox-head center active'},[
+				E('div',{
+					class:'ifacebox-head center active',
+					style:'background-color:%s; color: black; font-size:120%'.format(uci.get('autowms','status','enabled') == 1 ? /^(regular)/.test(whatAktif) ? '#0069d6' : '#ff0032' : '')
+				},[
 					E('strong',["AUTOWMS STATUS"])
 				]),
 				E('div',{class:'ifacebox-body autowms-info',id:'awms_enab'},[
@@ -315,7 +374,6 @@ return view.extend({
 		var loglines = LoadData[2].trim().split(/\n/).map(function(line) {
 			return line.replace(/^<\d+>/, '');
 		});
-		console.log(dataAkun);
 		mapAwms = new form.Map('autowms');
 		mainReg = mapAwms.section(form.TypedSection,'sistem');
 		mainReg.anonymous = true;
@@ -530,33 +588,28 @@ return view.extend({
 				]);
 			return node;
 		};
-
 		subsub = secReg.option(form.DummyValue, '_akunstat');
 		subsub.modalonly = false;
 		subsub.textvalue = function(section_id) {
 			var node = E('div', { 'id': '%s-akun-status'.format(section_id) });
 			var servData = [
-				_('Cron'), dataAkun[section_id].cron != '' ? uci.get('autowms', section_id, 'cron') : "Mohon untuk dilengkapi!",
-				_('Username'), dataAkun[section_id].user != '' ? uci.get('autowms', section_id, 'user') :"Mohon untuk dilengkapi!",
-				_('Password'), dataAkun[section_id].pass != '' ? uci.get('autowms', section_id, 'pass') : "Mohon untuk dilengkapi!"
+				_('Cron'), true ? uci.get('autowms', section_id, 'cron') : "Mohon untuk dilengkapi!",
+				_('Username'), true ? uci.get('autowms', section_id, 'user') :"Mohon untuk dilengkapi!",
+				_('Password'), true ? uci.get('autowms', section_id, 'pass') : "Mohon untuk dilengkapi!"
 			];
 
 			if(/^(regular)/.test(section_id)){
 				servData.push(
-					_('Gateway ID'), dataAkun[section_id].gwid != '' ? uci.get('autowms', section_id, 'gwid') : "Mohon untuk dilengkapi!",
-					_('Wireless ID'), dataAkun[section_id].wlid != '' ? uci.get('autowms', section_id, 'wlid') : "Mohon untuk dilengkapi!",
-					_('Wireless1 ID'), dataAkun[section_id].wlid1 != '' ? uci.get('autowms', section_id, 'wlid1') : "Mohon untuk dilengkapi!"
+					_('Gateway ID'), true ? uci.get('autowms', section_id, 'gwid') : "Mohon untuk dilengkapi!",
+					_('Wireless ID'), true  ? uci.get('autowms', section_id, 'wlid') : "Mohon untuk dilengkapi!",
+					_('Wireless1 ID'), true ? uci.get('autowms', section_id, 'wlid1') : "Mohon untuk dilengkapi!"
 				);
 			}
 			else if(/^(premium)/.test(section_id)){
 				servData.push(
-					_('LinkWMS'), dataAkun[section_id].linkwms != '' ? String(uci.get('autowms', section_id, 'linkwms')).substr(null,28) : "Mohon untuk dilengkapi!"
+					_('LinkWMS'), true ? String(uci.get('autowms', section_id, 'linkwms')).substr(null,28) : "Mohon untuk dilengkapi!"
 				);
 			}
-
-			function cobagan(node){
-			};
-
 			return L.itemlist(node, servData)
 
 		};
