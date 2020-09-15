@@ -150,32 +150,44 @@ var main = baseclass.extend({
 				getTarget.innerHTML = "\n%s[ %s %s ]\n".format(writeSpace, msg, type);
 			}
 		}
-		switch(wmsOpt1){
-			case "start":
-				fs.exec_direct('/etc/init.d/autowms', ['start']);
-				writeStatus('awmslogs', 'START', 'SUCCESS');
-				alert("Service start success");
-				break;
-			case "stop":
-				fs.exec_direct('/etc/init.d/autowms', ['stop']);
-				writeStatus('awmslogs', 'STOP', 'SUCCESS');
-				alert("Service stop success");
-				break;
-			case "clearlogs":
-				fs.exec_direct('/usr/sbin/autowms', ['clean']);
-				writeStatus('awmslogs', 'CLEARLOG', 'SUCCESS');
-				alert("log Cleared");
-				break;
-			case "enable":
-				fs.exec_direct('/etc/init.d/autowms', ['enable']);
-				break;
-			case "disable":
-				fs.exec_direct('/etc/init.d/autowms', ['disable']);
-				break;
+		function executeMe(dumpData,wmsOpt1){
+			var getSistem = dumpData[1].sistem;
+			var sistemEnabled = getSistem.status.enabled;
+			var sistemAktif = getSistem.status.aktif;
+			console.log(sistemEnabled,sistemAktif,dumpData[4]);
+			switch(wmsOpt1){
+				case "start":
+					if(sistemEnabled == true && sistemAktif != "" && dumpData[4] == "true"){
+						alert("so sorry, Service already running!");
+					}
+					else{
+						fs.exec_direct('/etc/init.d/autowms', ['start']);
+						writeStatus('awmslogs', 'START', 'SUCCESS');
+						alert("Service start success");
+					}
+					break;
+				case "stop":
+					fs.exec_direct('/etc/init.d/autowms', ['stop']);
+					writeStatus('awmslogs', 'STOP', 'SUCCESS');
+					alert("Service stop success");
+					break;
+				case "clearlogs":
+					fs.exec_direct('/usr/sbin/autowms', ['clean']);
+					writeStatus('awmslogs', 'CLEARLOG', 'SUCCESS');
+					alert("log Cleared");
+					break;
+				case "enable":
+					fs.exec_direct('/etc/init.d/autowms', ['enable']);
+					break;
+				case "disable":
+					fs.exec_direct('/etc/init.d/autowms', ['disable']);
+					break;
 
-			default:
-				console.log('no wmsOpt1 defined');
-		}
+				default:
+					console.log('no wmsOpt1 defined');
+			}
+		};
+		Promise.all(TasksData).then((data) => executeMe(data,wmsOpt1));
 	},
 	fetchData: TasksData,
 });

@@ -117,14 +117,6 @@ var keyshareInfo = form.DummyValue.extend({
 					)
 				]);
 
-				//this.LoadData[0].akun
-				/*
-				.forEach((key, index) => {
-					console.log(index);
-					console.log(`${key}: ${this.LoadData[0].akun[key]}`);
-				});*/
-
-
 				domEnd.appendChild(develAlert('gunakan dengan bijak!','P E R H A T I A N ! !','ifacebox-head active','akun ilegal tidak diperkenankan'));
 				domEnd.appendChild(E('br'));
 				domEnd.appendChild(domCBI_table);
@@ -282,7 +274,6 @@ function resolvData(LoadData, isAkunAlready){
 }
 
 function statusTable(dataAkun){
-	console.log(dataAkun);
 	function fetchData(dataAkun, whatAktif){
 		var servData = [
 			E('div',{class:'tr'},[

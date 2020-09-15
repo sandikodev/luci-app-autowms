@@ -4,5 +4,4 @@ mkdir /var/run/autowms
 if [ ! -f /etc/config/autowms ];then
 	touch /etc/config/autowms
 fi
-touch /var/run/autowms.log
 exit 0

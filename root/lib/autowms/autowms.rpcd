@@ -67,25 +67,38 @@ get_autowms_sistem(){
 
 get_autowms_akun(){
 	#config_load autowms
-	local configType=$1
-	local customType=$2
-	config_get note $configType note
-	config_get cron $configType cron
-	config_get user $configType user
-	config_get pass $configType pass
-	config_get gwid $configType gwid
-	config_get wlid $configType wlid
-	config_get wlid1 $configType wlid1
-
-	json_add_object $configType
-		json_add_string         "cron"          $cron
+	local sid=$1
+	local opt=$2
+	config_get note $sid note
+	config_get cron $sid cron
+	config_get user $sid user
+	config_get pass $sid pass
+	config_get gwid $sid gwid
+	config_get wlid $sid wlid
+	config_get wlid1 $sid wlid1
+	config_get ceklink $sid ceklink
+	config_get linkwms $sid linkwms
+	renderBase(){
 		json_add_string		"note"		$note		
+		json_add_string         "cron"          $cron
 		json_add_string		"user"		$user		
-		json_add_string		"pass"		$pass		
-		json_add_string 	"gwid"		$gwid		
-		json_add_string 	"wlid"		$wlid		
-		json_add_string 	"wlid1"		$wlid1		
-	json_close_object
+		json_add_string		"pass"		$pass
+	}
+	case $sid in
+		*premium*)
+			json_add_object $sid
+				renderBase
+				json_add_string 	"ceklink"	$ceklink
+				json_add_string 	"linkwms"	$linkwms
+			json_close_object;;
+		*regular*)
+			json_add_object $sid
+				renderBase
+				json_add_string 	"gwid"		$gwid
+				json_add_string 	"wlid"		$wlid
+				json_add_string 	"wlid1"		$wlid1
+			json_close_object;;
+	esac
 }
 
 writeAWMS_sistem(){

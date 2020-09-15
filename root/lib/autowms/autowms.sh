@@ -10,19 +10,17 @@ msgMS="Wejengan: harus diisi!!"	#bingung mau kasi jadi msg sblh mana >:(
 msgIN="mohon aktifkan salah satu"
 msgER="Wejengan: maaf ada yang error. selengkapnya, Hubungi Pengembang"
 
-active_user=$(uci show autowms | grep "].enabled='1" | awk -F'.' '{print $2}')
-cek_sek=$(echo "$active_user" | wc -l)
 depend_list="libwolfssl24 libustream-wolfssl20150806 openssl-util"
 
-msgUciKosong="uci: Entry not found"
 
-
-
-
-
-
-
-
+#$active_user diganti $awmsAktif
+#$cek_sek diganti $awmsEnable
+getSistem="ubus call autowms.sistem getSistem.status"
+getNetwork="ubus call luci-rpc getNetworkDevices"
+getAkun="ubus call autowms.akun getAkun"
+eval `$getSistem | jsonfilter -e 'awmsEnable=@.status.enabled'`
+eval `$getSistem | jsonfilter -e 'awmsAktif=@.status.aktif'`
+awmsAkun="$getAkun | jsonfilter -e "@.akun.$awmsAktif""
 
 
 
@@ -63,50 +61,59 @@ fetch_all_user(){
 }
 
 user_info(){
-	KEY=$(openssl rand -hex 2)
-	active_user=$(uci show autowms | grep "].enabled='1" | awk -F'.' '{print $2}')
-	cek_sek=$(echo "$active_user" | wc -l)
 	fill_msgIN(){
-		        USER=$msgIN
-                        PASS=$msgIN                                                                               
-                        GWID=$msgIN                                                                         
-                        WLID=$msgIN                                                                               
-                        WLID1=$msgIN                                                                       
-                        NOTE=$msgIN                                                                               
-                        CRON=$msgIN                                                                                                            
-                        KEY=$msgIN
+		akunCron=$msgIN
+		akunNote=$msgIN
+		akunUser=$msgIN
+		akunPass=$msgIN
+		akunGwid=$msgIN
+		akunWlid=$msgIN
+		akunWlid1=$msgIN
+		akunCeklink=$msgIN
+		akunLinkwms=$msgIN
+		akunKey=$msgIN
 	}
-	if [[ -z "$active_user" || $cek_sek -ge 2 ]]; then
-		
+
+	akunKey=$(openssl rand -hex 2)
+
+	if [[ $awmsEnable -eq 1 && ! -z $awmsAktif ]];then
+		eval `eval $awmsAkun | jsonfilter -e "akunCron=@.cron"`
+		eval `eval $awmsAkun | jsonfilter -e "akunNote=@.note"`
+		eval `eval $awmsAkun | jsonfilter -e "akunUser=@.user"`
+		eval `eval $awmsAkun | jsonfilter -e "akunPass=@.pass"`
+
+		if [ ! -z `printf $awmsAktif | grep premium` ];then
+			eval `eval $awmsAkun | jsonfilter -e "akunCeklink=@.ceklink"`
+			eval `eval $awmsAkun | jsonfilter -e "akunLinkwms=@.linkwms"`
+
+		elif [ ! -z `printf $awmsAktif | grep regular` ];then
+			eval `eval $awmsAkun | jsonfilter -e "akunGwid=@.gwid"`
+			eval `eval $awmsAkun | jsonfilter -e "akunWlid=@.wlid"`
+			eval `eval $awmsAkun | jsonfilter -e "akunWlid1=@.wlid1"`
+		fi
+		TIMELOAD=$((60*60*$akunCron))
+	elif [[ $awmsEnable -eq 0 || -z $awmsAktif ]];then
 		fill_msgIN
 		echo "=======================================[ ERROR COK ]"	
 		echo "Wejengan: "$msgIN""
 		echo 
-
-	elif [ $cek_sek -eq 1 ]; then
-		getval="uci get autowms.$active_user"
-		for check in $(uci show autowms.$active_user | awk -vFS="[.|=]" '{print $3}'); do
-			case $check in
-				user) USER=$(echo `$getval.user`);;
-				pass) PASS=$(echo `$getval.pass`);;
-				gwid) GWID=$(echo `$getval.gwid`);;
-				wlid) WLID=$(echo `$getval.wlid`);;
-				wlid1) WLID1=$(echo `$getval.wlid1`);;
-				note) NOTE=$(echo `$getval.note`);;
-				cron) CRON=$(echo `$getval.cron`);;
-			esac
-		done
-		TIMELOAD=$((60*60*$CRON))
 	else
 		echo $msgER 1>&2
 	fi
 }
 
 network_info(){
-	#changeme sesuai mac yang kamu mau pake
-	IFACE_WAN="wlan0"
-	IPLAN=$(ifconfig | grep -A 2 $IFACE_WAN | awk '/inet addr/{print substr($2,6)}')
-	MAC=$(ifconfig | grep -A 1 $IFACE_WAN | awk '/^[a-z]/ { mac=$NF; next } /inet addr:/ { print mac }')
+	if [[ `ifconfig | grep -B2 eth0 | wc -l` -ne 0 ]];then
+		IFACE_WAN="eth0"
+		IPLAN=$(ifconfig | grep -A 2 $IFACE_WAN | awk '/inet addr/{print substr($2,6)}')
+		MAC=$(ifconfig | grep -A 1 $IFACE_WAN | awk '/^[a-z]/ { mac=$NF; next } /inet addr:/ { print mac }')
+	elif [[ `ifconfig | grep -B2 wlan0 | wc -l` -ne 0 ]];then
+		IFACE_WAN="wlan0"
+		IPLAN=$(ifconfig | grep -A 2 $IFACE_WAN | awk '/inet addr/{print substr($2,6)}')
+		MAC=$(ifconfig | grep -A 1 $IFACE_WAN | awk '/^[a-z]/ { mac=$NF; next } /inet addr:/ { print mac }')
+	else
+		echo $msgER 1>&2
+	fi
 }
 
 ping_internet(){
@@ -162,10 +169,10 @@ get_info(){
 	echo "========================================[ get info ]"
 	network_info
 	user_info
-	echo user: $USER
-	echo pass: $PASS
-	echo gwid: $GWID
-	echo cron: "$CRON"jam atau "$TIMELOAD"sekon
+	echo user: $akunUser
+	echo pass: $akunPass
+	echo gwid: $akunGwid
+	echo cron: "$akunCron"jam atau "$TIMELOAD"sekon
 	echo MAC: $MAC
 }
 
@@ -187,13 +194,13 @@ autowms_connect(){
 	echo
 	echo "==========[ A U T O W M S__C O N N E C T ]=========="
 	get_info
-	if [[ -z "$active_user" || $cek_sek -ge 2 ]]; then
+	if [[ $awmsEnable -eq 0 || -z $awmsAktif ]]; then
 		echo 1>&2
 		echo "further'more, sandiko <androxoss@hotmail.com>" 1>&2
 		echo "https://github.com/mh4nx7net kopikonfig.com" 1>&2
-	elif [ $cek_sek -eq 1 ]; then
-		wmsPOST="username=$USER.$KEY@freeMS&password=$PASS"
-		wmsURI="https://welcome2.wifi.id/wms/auth/authnew/autologin/quarantine.php?ipc=$IPLAN&gw_id=$GWID&mac=$MAC&redirect=&wlan=$WLID/$WLID1"
+	elif [[ $awmsEnable -eq 1 && ! -z $awmsAktif ]]; then
+		wmsPOST="username=$akunUser.$akunKey@freeMS&password=$akunPass"
+		wmsURI="https://welcome2.wifi.id/wms/auth/authnew/autologin/quarantine.php?ipc=$IPLAN&gw_id=$akunGwid&mac=$MAC&redirect=&wlan=$akunWlid/$akunWlid1"
 		wget --post-data="$wmsPOST" "$wmsURI" -O /dev/null && echo "WGET REQUEST CONNECTED"
 	else
 		echo $msgER 1>&2
