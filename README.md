@@ -1,5 +1,5 @@
 <h2 align="center">
- <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview1.png" alt="Clash" width="600">
+ <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview1.png" width="600">
   <br>Luci App For Autowms<br>Seamless autologin<br>
 </h2>
 
@@ -13,6 +13,22 @@
         <img src="https://img.shields.io/github/downloads/mh4nx7net/luci-app-autowms/total.svg?style=flat-square"/>
    </a>
   </p>
+  
+  ## Preview
+  <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview7.png" width="800"/>
+  <details>
+  <summary>Click me to see more</summary>
+  <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview5.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview8.png" width="800"/>
+  <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview6.png" width="800"/>
+    </details>
+    
+  ## furthermore
+  - instagram: [@rsandi18](https://www.instagram.com/rsandi18/)
+  - instagram: [@_kopikonfig](https://www.instagram.com/_kopikonfig/)
+  - facebook: [kopikonfig](https://www.facebook.com/kopikonfig/)
+  - website: [kopikonfig.com](https://kopikonfig.com)
+  
   
   ## Install
 - Upload ipk file to tmp folder
@@ -61,5 +77,5 @@
     make package/luci-app-autowms/compile V=99
    ```
    
-## License  
+## License
 Luci App For Autowms - OpenWrt is released under the kopikonfig.com license
