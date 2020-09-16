@@ -10,7 +10,7 @@ msgMS="Wejengan: harus diisi!!"	#bingung mau kasi jadi msg sblh mana >:(
 msgIN="mohon aktifkan salah satu"
 msgER="Wejengan: maaf ada yang error. selengkapnya, Hubungi Pengembang"
 
-depend_list="libwolfssl24 libustream-wolfssl20150806 openssl-util"
+depend_list="libwolfssl24 libustream-wolfssl openssl-util"
 
 
 #$active_user diganti $awmsAktif

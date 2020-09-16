@@ -1,15 +1,5 @@
 
 config sistem 'status'
 	option running '1'
-	option enabled '1'
-	option aktif 'regular_paijo'
-
-config akun 'regular_paijo'
-	option note 'paijo'
-	option user '346457457457'
-	option pass '346458568568'
-	option gwid 'WAG-D22-T9'
-	option wlid 'BKLSJGH3443'
-	option wlid1 'TLK-CK-99900'
-	option cron '6'
+	option enabled '0'
 
