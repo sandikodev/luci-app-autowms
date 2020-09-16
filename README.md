@@ -14,6 +14,12 @@
    </a>
   </p>
   
+  ## furthermore
+  - instagram: [@rsandi18](https://www.instagram.com/rsandi18/)
+  - instagram: [@_kopikonfig](https://www.instagram.com/_kopikonfig/)
+  - facebook: [kopikonfig](https://www.facebook.com/kopikonfig/)
+  - website: [kopikonfig.com](https://kopikonfig.com)
+  
   ## Preview
   <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview7.png" width="800"/>
   <details>
@@ -21,15 +27,8 @@
   <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview5.png" width="800"/>
   <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview8.png" width="800"/>
   <img src="https://raw.githubusercontent.com/mh4nx7net/luci-app-autowms/master/preview/preview6.png" width="800"/>
-    </details>
-    
-  ## furthermore
-  - instagram: [@rsandi18](https://www.instagram.com/rsandi18/)
-  - instagram: [@_kopikonfig](https://www.instagram.com/_kopikonfig/)
-  - facebook: [kopikonfig](https://www.facebook.com/kopikonfig/)
-  - website: [kopikonfig.com](https://kopikonfig.com)
-  
-  
+    </details>  
+ 
   ## Install
 - Upload ipk file to tmp folder
 - cd /tmp
